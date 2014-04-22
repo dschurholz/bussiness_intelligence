@@ -1,1 +1,3 @@
 *.pyc
+bussiness_intelligence/local_settings.py
+.gitignore~
