@@ -38,6 +38,10 @@ class DimReference(models.Model):
         db_table = 'dimreferenciasdw'
         ordering = ['region']
 
+    def __unicode__(self):
+        return "%s-%s-%s-%s" % (self.id_reference, self.region, self.province,
+                                self.district)
+
 
 class DimCustomerUnit(models.Model):
     id = models.IntegerField(primary_key=True, db_column='UNI_CODIGO')
@@ -49,6 +53,9 @@ class DimCustomerUnit(models.Model):
     class Meta:
         db_table = 'dimunidadclientedw'
         ordering = ['customer']
+
+    def __unicode__(self):
+        return "%s-%s" % (self.unit_plate, self.customer)
 
 
 class Region(models.Model):
