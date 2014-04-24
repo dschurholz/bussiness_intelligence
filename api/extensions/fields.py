@@ -1,7 +1,27 @@
 from django.core.urlresolvers import NoReverseMatch
 
 from rest_framework.reverse import reverse
-from rest_framework.fields import Field
+from rest_framework.fields import Field, IntegerField as IntegerField_
+
+
+class IntegerField(IntegerField_):
+
+    empty = None
+
+
+def _getattr(obj, name, default=None):
+    """
+    Implementation of getattr that works with attributes of attributes.
+    Usage:
+    >>> _getattr(var, 'foo.bar')
+    """
+    value = obj
+    for attr in name.split('.'):
+        try:
+            value = getattr(value, attr)
+        except AttributeError:
+            return default
+    return value
 
 
 class ReverseField(Field):

@@ -6,9 +6,6 @@ admin.autodiscover()
 
 urlpatterns = patterns(
     '',
-    # Examples:
-    # url(r'^$', 'bussiness_intelligence.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
 
     # API v1
     url(r'^api/', include('api.urls', namespace='api')),
