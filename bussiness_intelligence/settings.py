@@ -82,24 +82,21 @@ USE_TZ = True
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
     'PAGINATE_BY': 20,
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.OAuth2Authentication'
-    ),
+    #'DEFAULT_AUTHENTICATION_CLASSES': (
+    #    'rest_framework.authentication.SessionAuthentication',
+    #    'rest_framework.authentication.OAuth2Authentication'
+    #),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.YAMLRenderer',
-        'rest_framework.renderers.XMLRenderer',
-        'rest_framework_msgpack.renderers.MessagePackRenderer'
-    ),
+        'rest_framework.renderers.XMLRenderer',    ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
         'rest_framework.parsers.YAMLParser',
         'rest_framework.parsers.XMLParser',
-        'rest_framework_msgpack.parsers.MessagePackParser'
     )
 
 }
