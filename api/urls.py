@@ -50,6 +50,23 @@ v1_urlpatterns = patterns('',
     url(r'^event/(?P<event_id>(\d+))/?$',
         views.EventDetail.as_view(),
         name='event-detail'),
+    url(r'^event/(?P<event_id>(\d+))/?$',
+        views.EventDetail.as_view(),
+        name='event-detail'),
+
+    # Queries
+    url(r'^speed-infringements/max-year/?$',
+        views.MaxYearSpeedInfringementQuery.as_view(),
+        name='max-year-query'),
+    url(r'^speed-infringements/max-day/(?P<year>(\d+))/(?P<month>(\d+))?$',
+        views.MaxDaySpeedInfringementQuery.as_view(),
+        name='max-day-query'),
+    url(r'^speed-infringements/max-month/(?P<year>(\d+))/?$',
+        views.MaxMonthSpeedInfringementQuery.as_view(),
+        name='max-month-query'),
+    url(r'^speed-infringements/max-fifteenth/(?P<year>(\d+))/(?P<month>(\d+))/?$',
+        views.MaxFifteenthSpeedInfringementQuery.as_view(),
+        name='max-fifteenth-query'),
 )
 
 urlpatterns = patterns('',

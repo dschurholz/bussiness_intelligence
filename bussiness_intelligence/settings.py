@@ -31,6 +31,26 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# List of callables that know how to import templates from various sources.
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+    # 'django.template.loaders.eggs.Loader',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+)
+
+TEMPLATE_DIRS = (
+    BASE_DIR + "/api/templates",
+)
 
 # Application definition
 
@@ -60,6 +80,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'api.middleware.crossdomain.XsSharing',
 )
 
 ROOT_URLCONF = 'bussiness_intelligence.urls'
@@ -80,8 +101,10 @@ USE_L10N = True
 USE_TZ = True
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
-    'PAGINATE_BY': 20,
+    'DEFAULT_PERMISSION_CLASSES': (
+    #    'rest_framework.permissions.IsAdminUser',
+    ),
+    'PAGINATE_BY': 40,
     # 'DEFAULT_AUTHENTICATION_CLASSES': (
     #    'rest_framework.authentication.SessionAuthentication',
     #    'rest_framework.authentication.OAuth2Authentication'
