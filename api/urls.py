@@ -4,6 +4,10 @@ from rest_framework.urlpatterns import format_suffix_patterns
 import views
 
 v1_urlpatterns = patterns('',
+    # Login
+    # url(r'^login/?$', views.Login.as_view(), name='login'),
+
+    # Views
     url(r'^customers/?$',
         views.CustomerList.as_view(),
         name='customer-list'),
