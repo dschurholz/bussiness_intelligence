@@ -62,7 +62,7 @@ class TimeSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
-    url = ReverseField('api:event-detail', args=('cantidad',))
+    url = ReverseField('api:event-detail', args=('total',))
     time = ReverseField('api:event-time-detail', args=('id_tiempo',))
     region = ReverseField('api:event-region-detail', args=('id_region',))
     customer = ReverseField('api:event-customer-detail', args=('id_cliente',))
