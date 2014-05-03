@@ -18,6 +18,9 @@ STATIC_ROOT = ROOT_DIR + '/static/'
 
 MEDIA_ROOT = ROOT_DIR + '/media/'
 
+#in the new django 1.4 structure the parent directory is one folder up
+SITE_ROOT = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
@@ -30,6 +33,15 @@ DEBUG = True
 TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
+
+# Additional locations of static files
+STATICFILES_DIRS = (
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+
+    os.path.join(SITE_ROOT, 'frontend/'),
+)
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (

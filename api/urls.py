@@ -54,11 +54,11 @@ v1_urlpatterns = patterns('',
         views.EventDetail.as_view(),
         name='event-detail'),
 
-    # Queries
+    # Time Queries
     url(r'^speed-infringements/max-year/?$',
         views.MaxYearSpeedInfringementQuery.as_view(),
         name='max-year-query'),
-    url(r'^speed-infringements/max-day/(?P<year>(\d+))/(?P<month>(\d+))?$',
+    url(r'^speed-infringements/max-day/(?P<year>(\d+))/(?P<month>(\d+))/?$',
         views.MaxDaySpeedInfringementQuery.as_view(),
         name='max-day-query'),
     url(r'^speed-infringements/max-month/(?P<year>(\d+))/?$',
@@ -67,6 +67,20 @@ v1_urlpatterns = patterns('',
     url(r'^speed-infringements/max-fifteenth/(?P<year>(\d+))/(?P<month>(\d+))/?$',
         views.MaxFifteenthSpeedInfringementQuery.as_view(),
         name='max-fifteenth-query'),
+
+    # Region Queries
+    url(r'^speed-infringements/max-region/?$',
+        views.SpeedInfringementByRegionQuery.as_view(),
+        name='max-region-query'),
+    url(r'^speed-infringements/max-province/(?P<region>([\w_]+))/?$',
+        views.SpeedInfringementByProvinceQuery.as_view(),
+        name='max-province-query'),
+    url(r'^speed-infringements/max-district/(?P<region>([\w_]+))/(?P<province>([\w_]+))/?$',
+        views.SpeedInfringementByDistrictQuery.as_view(),
+        name='max-district-query'),
+    url(r'^speed-infringements/max-road/(?P<region>([\w_]+))/(?P<province>([\w_]+))/(?P<district>([\w_]+))/?$',
+        views.SpeedInfringementByRoadQuery.as_view(),
+        name='max-road-query'),
 )
 
 urlpatterns = patterns('',

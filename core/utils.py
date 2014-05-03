@@ -16,3 +16,11 @@ def get_db_connection(autocommit=False):
     if autocommit:
         connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     return connection
+
+
+def replace_spaces(string):
+    return "_".join(string.split(" "))
+
+
+def replace_underscore(string):
+    return " ".join(string.split("_"))
