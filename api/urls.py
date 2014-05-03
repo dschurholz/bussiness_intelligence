@@ -4,6 +4,10 @@ from rest_framework.urlpatterns import format_suffix_patterns
 import views
 
 v1_urlpatterns = patterns('',
+    # Login
+    # url(r'^login/?$', views.Login.as_view(), name='login'),
+
+    # Views
     url(r'^customers/?$',
         views.CustomerList.as_view(),
         name='customer-list'),
@@ -46,6 +50,37 @@ v1_urlpatterns = patterns('',
     url(r'^event/(?P<event_id>(\d+))/?$',
         views.EventDetail.as_view(),
         name='event-detail'),
+    url(r'^event/(?P<event_id>(\d+))/?$',
+        views.EventDetail.as_view(),
+        name='event-detail'),
+
+    # Time Queries
+    url(r'^speed-infringements/max-year/?$',
+        views.MaxYearSpeedInfringementQuery.as_view(),
+        name='max-year-query'),
+    url(r'^speed-infringements/max-day/(?P<year>(\d+))/(?P<month>(\d+))/?$',
+        views.MaxDaySpeedInfringementQuery.as_view(),
+        name='max-day-query'),
+    url(r'^speed-infringements/max-month/(?P<year>(\d+))/?$',
+        views.MaxMonthSpeedInfringementQuery.as_view(),
+        name='max-month-query'),
+    url(r'^speed-infringements/max-fifteenth/(?P<year>(\d+))/(?P<month>(\d+))/?$',
+        views.MaxFifteenthSpeedInfringementQuery.as_view(),
+        name='max-fifteenth-query'),
+
+    # Region Queries
+    url(r'^speed-infringements/max-region/?$',
+        views.SpeedInfringementByRegionQuery.as_view(),
+        name='max-region-query'),
+    url(r'^speed-infringements/max-province/(?P<region>([\w_]+))/?$',
+        views.SpeedInfringementByProvinceQuery.as_view(),
+        name='max-province-query'),
+    url(r'^speed-infringements/max-district/(?P<region>([\w_]+))/(?P<province>([\w_]+))/?$',
+        views.SpeedInfringementByDistrictQuery.as_view(),
+        name='max-district-query'),
+    url(r'^speed-infringements/max-road/(?P<region>([\w_]+))/(?P<province>([\w_]+))/(?P<district>([\w_]+))/?$',
+        views.SpeedInfringementByRoadQuery.as_view(),
+        name='max-road-query'),
 )
 
 urlpatterns = patterns('',

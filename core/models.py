@@ -84,6 +84,7 @@ class SpeedInfringement(models.Model):
 
     class Meta:
         db_table = 'factexcesovelocidad'
+        ordering = ['id']
 
 
 class Time(models.Model):

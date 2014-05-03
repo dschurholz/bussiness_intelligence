@@ -18,6 +18,9 @@ STATIC_ROOT = ROOT_DIR + '/static/'
 
 MEDIA_ROOT = ROOT_DIR + '/media/'
 
+#in the new django 1.4 structure the parent directory is one folder up
+SITE_ROOT = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
@@ -31,6 +34,35 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Additional locations of static files
+STATICFILES_DIRS = (
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+
+    os.path.join(SITE_ROOT, 'frontend/'),
+)
+
+# List of callables that know how to import templates from various sources.
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+    # 'django.template.loaders.eggs.Loader',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+)
+
+TEMPLATE_DIRS = (
+    BASE_DIR + "/api/templates",
+)
 
 # Application definition
 
@@ -60,6 +92,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'api.middleware.crossdomain.XsSharing',
 )
 
 ROOT_URLCONF = 'bussiness_intelligence.urls'
@@ -80,17 +113,20 @@ USE_L10N = True
 USE_TZ = True
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
-    'PAGINATE_BY': 20,
-    #'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_PERMISSION_CLASSES': (
+    #    'rest_framework.permissions.IsAdminUser',
+    ),
+    'PAGINATE_BY': 40,
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
     #    'rest_framework.authentication.SessionAuthentication',
     #    'rest_framework.authentication.OAuth2Authentication'
-    #),
+    # ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
         'rest_framework.renderers.YAMLRenderer',
-        'rest_framework.renderers.XMLRenderer',    ),
+        'rest_framework.renderers.XMLRenderer',
+    ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
