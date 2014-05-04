@@ -17,7 +17,7 @@ function MainCtrl($scope, SpeedInfringementsYear, SpeedInfringementsMonth, Speed
         var serie = builderOfSerie("Year", speedInfsYear.data);
         $('#speedInf').highcharts({
             chart: {
-                type: 'bubble',
+                type: 'column',
                 events: {
                     drilldown: function (e) {
                         var lchar = $("#speedInf").highcharts();
