@@ -380,7 +380,8 @@ class SpeedInfringementByRoadQuery(views.APIView):
                        'AND r.sDistr = %s GROUP BY r.sNomVia;',
                        (region, province, district))
         roads = [{"label": road[0], "count": road[1]} for road in cursor]
-        roads = roads[:30]
+
+        roads = roads[1:51]
         cursor.close()
         connection.close()
         data = {"data": roads}
