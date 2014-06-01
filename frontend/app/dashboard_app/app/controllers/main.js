@@ -7,7 +7,7 @@ function MainCtrl($scope, SpeedInfringementsYear, SpeedInfringementsMonth, Speed
                       colorByPoint : true,
                       data : [] };
         for (var i = 0; i < data.length; i++) {
-            serie.data.push({ name : data[i].label, y : data[i].count, drilldown : true });
+            serie.data.push({ name : data[i].label, y : data[i].count, z : data[i].count, drilldown : true });
         }
         return serie;
     }
@@ -83,7 +83,7 @@ function RegionCtrl($scope, SpeedInfringementsRegion, SpeedInfringementsProvince
         var serie = builderOfSerie("Region", speedInfsRegion.data);
         $('#speedInfReg').highcharts({
             chart: {
-                type: 'pie',
+                type: 'column',
                 events: {
                     drilldown: function (e) {
                         var lchar = $("#speedInfReg").highcharts();
@@ -92,7 +92,7 @@ function RegionCtrl($scope, SpeedInfringementsRegion, SpeedInfringementsProvince
                             var speedInfsMonth = SpeedInfringementsProvince.get({ region : e.point.name }, function() {
                                 lchar.addSeriesAsDrilldown(e.point, builderOfSerie("Province", speedInfsMonth.data));
                             });
-                            return;
+                            returncolumn
                         }
                         if (e.point.series.name == 'Province') {
                             console.log('Process drilldown month...', e.point.name);
