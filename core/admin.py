@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import (Customer, DimReference, DimCustomerUnit,
-                     Event, Region, SpeedInfringement, Time)
+                     Event, Region, SpeedInfringement, Time, Cube, Graphics)
 
 
 class CustomerAdmin(admin.ModelAdmin):
@@ -40,6 +40,16 @@ class TimeAdmin(admin.ModelAdmin):
     list_display = ('id_date', 'year', 'month', 'day',)
 
 
+class CubeAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+    list_display = ('name',)
+
+
+class GraphicsAdmin(admin.ModelAdmin):
+    search_fields = ['name', 'id_cube']
+    list_display = ('name', 'ds_type',)
+
+
 admin.site.register(Customer, CustomerAdmin)
 admin.site.register(DimCustomerUnit, DimCustomerUnitAdmin)
 admin.site.register(DimReference, DimReferenceAdmin)
@@ -47,3 +57,5 @@ admin.site.register(Event, EventAdmin)
 admin.site.register(Region, RegionAdmin)
 admin.site.register(SpeedInfringement, SpeedInfringementAdmin)
 admin.site.register(Time, TimeAdmin)
+admin.site.register(Cube, CubeAdmin)
+admin.site.register(Graphics, GraphicsAdmin)
