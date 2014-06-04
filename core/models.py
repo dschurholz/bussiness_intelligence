@@ -123,7 +123,7 @@ class Cube(models.Model):
 class Graphics(models.Model):
     name = models.CharField(max_length=50)
     ds_type = models.CharField(max_length=50)
-    id_cube = models.ForeignKey(Cube, db_column='id', null=True)
+    id_cube = models.ForeignKey(Cube, null=True)
 
     class Meta:
         ordering = ['name', 'ds_type', 'id_cube']
