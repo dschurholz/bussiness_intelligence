@@ -4,7 +4,7 @@ from rest_framework.reverse import reverse
 from .extensions.fields import ReverseField
 
 from core.models import (Customer, DimReference, SpeedInfringement,
-                         DimCustomerUnit, Region, Time, Event)
+                         DimCustomerUnit, Region, Time, Event, Cube, Graphics)
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -70,3 +70,20 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ('url', 'time', 'region', 'customer', 'total')
+
+
+class CubeSerializer(serializers.ModelSerializer):
+    url = ReverseField('api:cube-detail', args=('id',))
+
+    class Meta:
+        model = Cube
+        fields = ('id', 'name')
+
+
+class GraphicsSerializer(serializers.ModelSerializer):
+    url = ReverseField('api:graphics-detail', args=('id',))
+    id_cube = ReverseField('api:graphics-id_cube-detail', args=('id_cube',))
+
+    class Meta:
+        model = Graphics
+        fields = ('id', 'name', 'ds_type', 'id_cube')

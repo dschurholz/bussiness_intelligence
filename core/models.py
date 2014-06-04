@@ -111,3 +111,19 @@ class Event(models.Model):
     class Meta:
         db_table = 'hechos'
         ordering = ['time', 'region', 'customer', 'total']
+
+
+class Cube(models.Model):
+    name = models.CharField(max_length=50)
+
+    class Meta:
+        ordering = ['name']
+
+
+class Graphics(models.Model):
+    name = models.CharField(max_length=50)
+    ds_type = models.CharField(max_length=50)
+    id_cube = models.ForeignKey(Cube, null=True)
+
+    class Meta:
+        ordering = ['name', 'ds_type', 'id_cube']

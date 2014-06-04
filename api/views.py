@@ -9,11 +9,11 @@ from django.http import HttpResponse
 from django.conf import settings
 
 from core.models import (Customer, DimCustomerUnit, DimReference,
-                         SpeedInfringement, Region, Time, Event)
-
+                         SpeedInfringement, Region, Time, Event, Cube, Graphics)
 from .serializers import (CustomerSerializer, SpeedInfringementSerializer,
                           DimCustomerUnitSerializer, DimReferenceSerializer,
-                          RegionSerializer, TimeSerializer, EventSerializer)
+                          RegionSerializer, TimeSerializer, EventSerializer, CubeSerializer 
+                          GraphicsSerializer)
 from core.utils import get_db_connection, replace_spaces, replace_underscore
 
 
@@ -190,6 +190,56 @@ class EventDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     pk_url_kwarg = 'event_id'
+
+
+class CubeList(generics.ListCreateAPIView):
+    """
+    `GET`: Returns a list of all cubes.
+
+    `POST`: Add a cube.
+    """
+
+    queryset = Cube.objects.all()
+    serializer_class = EventSerializer
+
+
+class CubeDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    `GET`: Returns detail about a cube.
+
+    `PUT`: Updates cube information.
+
+    `DELETE`: Deletes a cube.
+    """
+
+    queryset = Cube.objects.all()
+    serializer_class = EventSerializer
+    pk_url_kwarg = 'id'
+
+
+class GraphicsList(generics.ListCreateAPIView):
+    """
+    `GET`: Returns a list of all graphics.
+
+    `POST`: Add a graphics.
+    """
+
+    queryset = Graphics.objects.all()
+    serializer_class = EventSerializer
+
+
+class GraphicsDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    `GET`: Returns detail about a graphics.
+
+    `PUT`: Updates graphics information.
+
+    `DELETE`: Deletes a graphics.
+    """
+
+    queryset = Cube.objects.all()
+    serializer_class = EventSerializer
+    pk_url_kwarg = 'id'
 
 
 class MaxYearSpeedInfringementQuery(views.APIView):
