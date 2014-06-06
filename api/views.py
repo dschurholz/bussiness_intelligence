@@ -12,7 +12,7 @@ from core.models import (Customer, DimCustomerUnit, DimReference,
                          SpeedInfringement, Region, Time, Event, Cube, Graphics)
 from .serializers import (CustomerSerializer, SpeedInfringementSerializer,
                           DimCustomerUnitSerializer, DimReferenceSerializer,
-                          RegionSerializer, TimeSerializer, EventSerializer, CubeSerializer 
+                          RegionSerializer, TimeSerializer, EventSerializer, CubeSerializer,
                           GraphicsSerializer)
 from core.utils import get_db_connection, replace_spaces, replace_underscore
 
