@@ -114,14 +114,32 @@ class Event(models.Model):
 
 
 class Cube(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        ordering = ['name']
+
+
+class Dimention(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    table_name = models.CharField(max_length=100)
+    cube = models.ForeignKey(Cube)
+
+    class Meta:
+        ordering = ['name']
+
+
+class Hierarchy(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    columne_name = models.CharField(max_length=100)
+    dimention = models.ForeignKey(Dimention)
 
     class Meta:
         ordering = ['name']
 
 
 class Graphics(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     ds_type = models.CharField(max_length=50)
     id_cube = models.ForeignKey(Cube, null=True)
 

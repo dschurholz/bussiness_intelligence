@@ -4,7 +4,8 @@ from rest_framework.reverse import reverse
 from .extensions.fields import ReverseField
 
 from core.models import (Customer, DimReference, SpeedInfringement,
-                         DimCustomerUnit, Region, Time, Event, Cube, Graphics)
+                         DimCustomerUnit, Region, Time, Event, Cube, Graphics,
+                         Dimention, Hierarchy)
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -80,10 +81,28 @@ class CubeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
+class DimentionSerializer(serializers.ModelSerializer):
+    url = ReverseField('api:dimention-detail', args=('id',))
+    cube = ReverseField('api:cube-detail', args=('cube',))
+
+    class Meta:
+        model = Dimention
+        fields = ('id', 'name', 'table_name')
+
+
+class HierarchySerializer(serializers.ModelSerializer):
+    url = ReverseField('api:hierarchy-detail', args=('id',))
+    dimention = ReverseField('api:dimention-detail', args=('dimention',))
+
+    class Meta:
+        model = Hierarchy
+        fields = ('id', 'name', 'columne_name')
+
+
 class GraphicsSerializer(serializers.ModelSerializer):
     url = ReverseField('api:graphics-detail', args=('id',))
-    id_cube = ReverseField('api:graphics-id_cube-detail', args=('id_cube',))
+    cube = ReverseField('api:cube-detail', args=('id_cube',))
 
     class Meta:
         model = Graphics
-        fields = ('id', 'name', 'ds_type', 'id_cube')
+        fields = ('id', 'name', 'ds_type')

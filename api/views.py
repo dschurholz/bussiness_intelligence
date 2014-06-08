@@ -9,11 +9,13 @@ from django.http import HttpResponse
 from django.conf import settings
 
 from core.models import (Customer, DimCustomerUnit, DimReference,
-                         SpeedInfringement, Region, Time, Event, Cube, Graphics)
+                         SpeedInfringement, Region, Time, Event, Cube,
+                         Graphics, Dimention, Hierarchy)
 from .serializers import (CustomerSerializer, SpeedInfringementSerializer,
                           DimCustomerUnitSerializer, DimReferenceSerializer,
-                          RegionSerializer, TimeSerializer, EventSerializer, CubeSerializer,
-                          GraphicsSerializer)
+                          RegionSerializer, TimeSerializer, EventSerializer,
+                          CubeSerializer, GraphicsSerializer,
+                          DimentionSerializer, HierarchySerializer)
 from core.utils import get_db_connection, replace_spaces, replace_underscore
 
 
@@ -200,7 +202,7 @@ class CubeList(generics.ListCreateAPIView):
     """
 
     queryset = Cube.objects.all()
-    serializer_class = EventSerializer
+    serializer_class = CubeSerializer
 
 
 class CubeDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -213,7 +215,57 @@ class CubeDetail(generics.RetrieveUpdateDestroyAPIView):
     """
 
     queryset = Cube.objects.all()
-    serializer_class = EventSerializer
+    serializer_class = CubeSerializer
+    pk_url_kwarg = 'id'
+
+
+class DimentionList(generics.ListCreateAPIView):
+    """
+    `GET`: Returns a list of all dimentions.
+
+    `POST`: Add a dimention.
+    """
+
+    queryset = Dimention.objects.all()
+    serializer_class = DimentionSerializer
+
+
+class DimentionDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    `GET`: Returns detail about a dimention.
+
+    `PUT`: Updates dimention information.
+
+    `DELETE`: Deletes a dimention.
+    """
+
+    queryset = Cube.objects.all()
+    serializer_class = DimentionSerializer
+    pk_url_kwarg = 'id'
+
+
+class HierarchyList(generics.ListCreateAPIView):
+    """
+    `GET`: Returns a list of all hierarchies.
+
+    `POST`: Add a hierarchy.
+    """
+
+    queryset = Hierarchy.objects.all()
+    serializer_class = HierarchySerializer
+
+
+class HierarchyDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    `GET`: Returns detail about a hierarchy.
+
+    `PUT`: Updates hierarchy information.
+
+    `DELETE`: Deletes a hierarchy.
+    """
+
+    queryset = Hierarchy.objects.all()
+    serializer_class = HierarchySerializer
     pk_url_kwarg = 'id'
 
 
@@ -225,7 +277,7 @@ class GraphicsList(generics.ListCreateAPIView):
     """
 
     queryset = Graphics.objects.all()
-    serializer_class = EventSerializer
+    serializer_class = GraphicsSerializer
 
 
 class GraphicsDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -238,7 +290,7 @@ class GraphicsDetail(generics.RetrieveUpdateDestroyAPIView):
     """
 
     queryset = Cube.objects.all()
-    serializer_class = EventSerializer
+    serializer_class = GraphicsSerializer
     pk_url_kwarg = 'id'
 
 
@@ -254,7 +306,8 @@ class MaxYearSpeedInfringementQuery(views.APIView):
                        'count(year(MEC_FECCOMUNDW)) as count FROM ' +
                        'topicosbd.factexcesovelocidad GROUP BY ' +
                        'year(MEC_FECCOMUNDW);')
-        years = [{"url": request.build_absolute_uri(reverse("api:max-month-query",
+        years = [{"url": request.build_absolute_uri(reverse(
+                  "api:max-month-query",
                   kwargs={"year": year[0]})),
                   "label": year[0], "count": year[1]} for year in cursor]
         cursor.close()
@@ -277,7 +330,8 @@ class MaxMonthSpeedInfringementQuery(views.APIView):
                        "topicosbd.factexcesovelocidad WHERE " +
                        "year(MEC_FECCOMUNDW)=%s GROUP BY " +
                        "month(MEC_FECCOMUNDW);", (year,))
-        months = [{"url": request.build_absolute_uri(reverse("api:max-day-query",
+        months = [{"url": request.build_absolute_uri(reverse(
+                   "api:max-day-query",
                    kwargs={"year": year, "month": month[0]})),
                    "label": month[0], "count": month[1]} for month in cursor]
         cursor.close()
@@ -347,7 +401,8 @@ class SpeedInfringementByRegionQuery(views.APIView):
                        'topicosbd.factexcesovelocidad f INNER JOIN ' +
                        'topicosbd.dimreferenciasdw r ON f.idReferencia = ' +
                        'r.idReferencia GROUP BY r.sDpto;')
-        regions = [{"url": request.build_absolute_uri(reverse("api:max-province-query",
+        regions = [{"url": request.build_absolute_uri(reverse(
+                    "api:max-province-query",
                     kwargs={"region": replace_spaces(region[0].lower())})),
                     "label": region[0], "count": region[1]}
                    for region in cursor]
@@ -371,7 +426,8 @@ class SpeedInfringementByProvinceQuery(views.APIView):
                        'topicosbd.dimreferenciasdw r ON f.idReferencia = ' +
                        'r.idReferencia WHERE r.sDpto = %s GROUP BY r.sProvi;',
                        (region,))
-        provinces = [{"url": request.build_absolute_uri(reverse("api:max-district-query",
+        provinces = [{"url": request.build_absolute_uri(reverse(
+                      "api:max-district-query",
                       kwargs={"region": replace_spaces(region.lower()),
                       "province": replace_spaces(province[0].lower())})),
                      "label": str(province[0]), "count": province[1]}
@@ -398,7 +454,8 @@ class SpeedInfringementByDistrictQuery(views.APIView):
                        'r.idReferencia WHERE r.sDpto = %s AND r.sProvi = %s ' +
                        'GROUP BY r.sDistr;',
                        (region, province,))
-        districts = [{"url": request.build_absolute_uri(reverse("api:max-road-query",
+        districts = [{"url": request.build_absolute_uri(reverse(
+                      "api:max-road-query",
                       kwargs={"region": replace_spaces(region.lower()),
                       "province": replace_spaces(province.lower()),
                       "district": (replace_spaces(district[0].lower())
