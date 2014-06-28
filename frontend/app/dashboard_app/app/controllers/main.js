@@ -166,6 +166,13 @@ function MainCtrl($scope, $http, $cookies, $compile, GraphicList, utilsService) 
         $scope.buildGraphics();
     };
 
+    $scope.restoreGraphic = function (graphic) {
+        graphic.query = graphic.queries[0];
+        graphic.queries = [];
+        graphic.queries.push(graphic.query)
+        $scope.buildGraphics();
+    };
+
     var builderOfSerie = function (name, data) {
         var serie = { name : name,
                       colorByPoint : true,
