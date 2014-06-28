@@ -339,7 +339,7 @@ class CreateGraphic(views.APIView):
                 " INNER JOIN ".join(dimentions_query),
                 selected_hier
             )
-            print query
+            #print query
             try:
                 graphic = Graphics.create_new_graphic(
                     name=data["name"],
@@ -391,8 +391,25 @@ class GraphicDrilldown(views.APIView):
         id = kwargs.get('id')
         hierarchy = self.request.QUERY_PARAMS.get('hierarchy')
         point = self.request.QUERY_PARAMS.get('point')
-        graphic = Graphics.objects.get(pk=id)
-        
+        try:
+            point = int(point)
+        except ValueError:
+            point = "'" + point + "'"
+        query = self.request.QUERY_PARAMS.get('query')
+        if not query:
+            graphic = Graphics.objects.get(pk=id)
+            query = graphic.query
+        last_hierarchy = query.split('FROM', 1)[0].split('SELECT ', 1)[1].split(',')[0]
+        query = query.replace(last_hierarchy, hierarchy)
+        idx = query.find('WHERE')
+        if idx > -1:
+            where = ' AND ' 
+        else:
+            where = ' WHERE '
+        where += last_hierarchy + '=' + str(point) + " "
+        tmp = query.partition('GROUP BY')
+        query = tmp[1].join([tmp[0] + where, tmp[2]])
+        return Response({"query": query})
 
 
 class GraphicsList(generics.ListAPIView):

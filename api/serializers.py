@@ -118,11 +118,12 @@ class GraphicsSerializer(serializers.ModelSerializer):
     cube = ReverseField('api:cube-detail', args=('id_cube.id',))
     query_endpoint = ReverseField('api:graphics-query', args=('id',))
     dimentions = serializers.SerializerMethodField('get_dimentions')
+    drilldown = ReverseField('api:graphics-drilldown', args=('id',))
 
     class Meta:
         model = Graphics
         fields = ('id', 'name', 'ds_type', 'url', 'cube', 'query',
-                  'query_endpoint', 'dimentions')
+                  'query_endpoint', 'drilldown', 'dimentions')
 
     def get_dimentions(self, obj):
         return obj.get_dimentions()

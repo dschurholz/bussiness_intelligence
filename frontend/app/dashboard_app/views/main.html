@@ -53,12 +53,13 @@
 		</div>
 		<div class="col-md-4">
 			<ul class="pager">
-			  <li><a ng-show="graphic.previous" ng-click="previousPage(graphic)" style="cursor:pointer;">&laquo;</a></li>
-			  <li><a ng-show="graphic.next" ng-click="nextPage(graphic)" style="cursor:pointer;">&raquo;</a></li>
+			  <li><a ng-show="graphic.previous" ng-click="pageChange(graphic, 0)" style="cursor:pointer;">&laquo;</a></li>
+			  <li><a ng-show="graphic.next" ng-click="pageChange(graphic, 1)" style="cursor:pointer;">&raquo;</a></li>
 			</ul>
 		</div>
 		<div class="col-md-4">
-			<a class="pull-right" ng-click="deleteGraphic(graphic)"><i class="halflings-icon black remove"></i></a>
+			<a class="pull-right" ng-click="deleteGraphic(graphic)" style="cursor:pointer;"><i class="halflings-icon black remove"></i></a>
+			<a ng-show="graphic.queries.length > 1" class="pull-right" ng-click="lastQuery(graphic)" style="cursor:pointer;"><i class="halflings-icon black chevron-up"></i></a>
 		</div>
 	</div>
 	<div class="panel-body">

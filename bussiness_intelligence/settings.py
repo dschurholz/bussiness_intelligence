@@ -116,7 +116,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
     #    'rest_framework.permissions.IsAdminUser',
     ),
-    'PAGINATE_BY': 40,
+    'PAGINATE_BY': 32,
     # 'DEFAULT_AUTHENTICATION_CLASSES': (
     #    'rest_framework.authentication.SessionAuthentication',
     #    'rest_framework.authentication.OAuth2Authentication'

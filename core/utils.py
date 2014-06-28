@@ -27,8 +27,8 @@ def replace_underscore(string):
     return " ".join(string.split("_"))
 
 def get_hier_order(hierarchies):
-    hs = constants.HIER_ORDER
-    for h in hs:
-        if h not in hierarchies:
-            hs.remove(h)
+    hs = []
+    for h in constants.HIER_ORDER:
+        if h in hierarchies:
+            hs.append(h)
     return hs

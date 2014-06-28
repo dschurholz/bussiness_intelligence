@@ -10,5 +10,5 @@ DIM_SCUT = {
     "tiempo": "t"
 }
 
-HIER_ORDER = ['Anho', 'Mes', 'Dia', 'sDpto', 'sProv', 'sDist',
+HIER_ORDER = ['Anho', 'Mes', 'Dia', 'sDpto', 'sProvi', 'sDistr',
               'CLI_NOMBRE', 'UNI_MATRICULA']

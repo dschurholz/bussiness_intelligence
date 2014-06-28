@@ -69,9 +69,13 @@ function MainCtrl($scope, $http, $cookies, $compile, GraphicList, utilsService) 
         charts();
     };
 
-    $scope.nextPage = function (graphic) {
+    $scope.pageChange = function (graphic, val) {
         graphic.loaded = false;
-        $http.get(graphic.next).success(function (data) {
+        var endpoint = graphic.previous; 
+        if (val == 1) {
+            endpoint = graphic.next;
+        }
+        $http.get(endpoint).success(function (data) {
             console.log(data);
             var idx = utilsService.searchByProperty(
                 $scope.graphics,
@@ -140,9 +144,26 @@ function MainCtrl($scope, $http, $cookies, $compile, GraphicList, utilsService) 
     };
 
     $scope.drilldown = function (hierarchy, pointName, graphicId) {
-        console.log(hierarchy);
+        /*console.log(hierarchy);
         console.log(pointName);
-        console.log(graphicId);
+        console.log(graphicId);*/
+        var endpoint = $scope.graphics[graphicId].drilldown +
+                       '?hierarchy=' + hierarchy.columne_name + '&point=' + pointName +
+                       '&query=' + $scope.graphics[graphicId].query;
+        $http.get(endpoint).success(function (data) {
+            if (!$scope.graphics[graphicId].queries){
+                $scope.graphics[graphicId].queries = [$scope.graphics[graphicId].query];
+            }
+            $scope.graphics[graphicId].queries.push(data.query);
+            $scope.graphics[graphicId].query = data.query;
+            $scope.buildGraphics();
+        });
+    };
+
+    $scope.lastQuery = function (graphic) {
+        graphic.queries.pop();
+        graphic.query = graphic.queries[graphic.queries.length-1];
+        $scope.buildGraphics();
     };
 
     var builderOfSerie = function (name, data) {
