@@ -5,7 +5,6 @@ from rest_framework.reverse import reverse
 from rest_framework import permissions
 from rest_framework import status
 
-from django.http import HttpResponse
 from django.conf import settings
 
 from core.models import (Customer, DimCustomerUnit, DimReference,
@@ -15,8 +14,12 @@ from .serializers import (CustomerSerializer, SpeedInfringementSerializer,
                           DimCustomerUnitSerializer, DimReferenceSerializer,
                           RegionSerializer, TimeSerializer, EventSerializer,
                           CubeSerializer, GraphicsSerializer,
-                          DimentionSerializer, HierarchySerializer)
-from core.utils import get_db_connection, replace_spaces, replace_underscore
+                          DimentionSerializer, HierarchySerializer,
+                          SimpleDimentionSerializer, SimpleHierarchySerializer,
+                          SQLQuerySerializer)
+from core.utils import (get_db_connection, replace_spaces, replace_underscore,
+                        get_hier_order)
+from constants import ON_QUERY, DIM_SCUT
 
 
 class CustomerList(generics.ListCreateAPIView):
@@ -229,6 +232,13 @@ class DimentionList(generics.ListCreateAPIView):
     queryset = Dimention.objects.all()
     serializer_class = DimentionSerializer
 
+    def filter_queryset(self, queryset):
+        distinct = self.request.QUERY_PARAMS.get('distinct')
+        if distinct:
+            queryset = queryset.values('name', 'table_name').distinct()
+            self.serializer_class = SimpleDimentionSerializer
+        return queryset
+
 
 class DimentionDetail(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -253,6 +263,24 @@ class HierarchyList(generics.ListCreateAPIView):
 
     queryset = Hierarchy.objects.all()
     serializer_class = HierarchySerializer
+    dimention = None
+
+    def filter_queryset(self, queryset):
+        distinct = self.request.QUERY_PARAMS.get('distinct')
+        dimention = self.request.QUERY_PARAMS.get('dimention')
+        if dimention:
+            queryset = queryset.filter(dimention__name=dimention)
+            self.dimention = dimention
+        if distinct:
+            queryset = queryset.values('name', 'columne_name').distinct()
+            self.serializer_class = SimpleHierarchySerializer
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        response = super(HierarchyList, self).list(request, args, kwargs)
+        if self.dimention:
+            response.data['dimention'] = self.dimention
+        return response
 
 
 class HierarchyDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -269,11 +297,107 @@ class HierarchyDetail(generics.RetrieveUpdateDestroyAPIView):
     pk_url_kwarg = 'id'
 
 
-class GraphicsList(generics.ListCreateAPIView):
+class CreateGraphic(views.APIView):
+    """
+    `POST`: Creates a new graphic, including, cube, dimentions and hierarchies.
+    """
+
+    def post(self, request, *args, **kwargs):
+        #import json
+        #print json.dumps(request.DATA)
+        data = request.DATA
+        response = {}
+        if data["hierarchies"]:
+            query = ("SELECT %s, count(*) as count " +
+                     "FROM topicosbd.factexcesovelocidad f " +
+                     "INNER JOIN %s " +
+                     "GROUP BY %s;")
+            dimentions_query = []
+            hierarchies_query = []
+            on_query = []
+            cube = Cube.create_new_cube(name=data["name"])
+            for dim in data["hierarchies"]:
+                dimention = Dimention.create_new_dimention(
+                    name=dim["dimention_name"],
+                    table_name=dim["dimention_table"],
+                    cube=cube
+                )
+                dimentions_query.append("topicosbd." + dim["dimention_table"] +
+                                        " " + DIM_SCUT[dim["dimention_table"]] +
+                                        " " + ON_QUERY[dim["dimention_table"]])
+                for hier in dim["hierarchies"]:
+                    hierarchy = Hierarchy.create_new_hierarchy(
+                        name=hier["name"],
+                        columne_name=hier["columne_name"],
+                        dimention=dimention
+                    )
+                    hierarchies_query.append(hier["columne_name"])
+
+            selected_hier = get_hier_order(hierarchies_query)[0]
+            query = query % (
+                selected_hier,
+                " INNER JOIN ".join(dimentions_query),
+                selected_hier
+            )
+            print query
+            try:
+                graphic = Graphics.create_new_graphic(
+                    name=data["name"],
+                    ds_type=data["type"],
+                    cube=cube,
+                    query=query
+                )
+            except ConnectionErr:
+                response = {"error": "Name exists!"}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+            response = GraphicsSerializer(graphic).data
+            return Response(response)
+        else:
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GraphicQuery(generics.ListAPIView):
+    """
+    `GET`: Returns the execution of a SQL query given in a param.
+    """
+
+    serializer_class = SQLQuerySerializer
+
+    def get_queryset(self):
+        query = self.request.QUERY_PARAMS.get('query')
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        cursor.execute(query)
+        records = [{"label": record[0], "count": record[1]}
+                   for record in cursor]
+        cursor.close()
+        connection.close()
+        return records
+
+    def list(self, request, *args, **kwargs):
+        id = kwargs.get('id')
+        response = super(GraphicQuery, self).list(request, args, kwargs)
+        response.data['graphic_id'] = int(id)
+        return response
+
+
+class GraphicDrilldown(views.APIView):
+    """
+    `GET`: Returns the drilldown query given some parameters.
+    """
+
+    def get(self, request, *args, **kwargs):
+        id = kwargs.get('id')
+        hierarchy = self.request.QUERY_PARAMS.get('hierarchy')
+        point = self.request.QUERY_PARAMS.get('point')
+        graphic = Graphics.objects.get(pk=id)
+        
+
+
+class GraphicsList(generics.ListAPIView):
     """
     `GET`: Returns a list of all graphics.
-
-    `POST`: Add a graphics.
     """
 
     queryset = Graphics.objects.all()
@@ -289,7 +413,7 @@ class GraphicsDetail(generics.RetrieveUpdateDestroyAPIView):
     `DELETE`: Deletes a graphics.
     """
 
-    queryset = Cube.objects.all()
+    queryset = Graphics.objects.all()
     serializer_class = GraphicsSerializer
     pk_url_kwarg = 'id'
 

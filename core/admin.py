@@ -58,7 +58,7 @@ class HierarchyAdmin(admin.ModelAdmin):
 
 class GraphicsAdmin(admin.ModelAdmin):
     search_fields = ['name', 'id_cube']
-    list_display = ('name', 'ds_type',)
+    list_display = ('name', 'ds_type', 'id_cube')
 
 
 admin.site.register(Customer, CustomerAdmin)

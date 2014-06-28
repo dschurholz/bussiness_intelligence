@@ -1,6 +1,7 @@
 from django.conf import settings
 import MySQLdb
 
+from api import constants
 
 def get_db_connection(autocommit=False):
     """
@@ -24,3 +25,10 @@ def replace_spaces(string):
 
 def replace_underscore(string):
     return " ".join(string.split("_"))
+
+def get_hier_order(hierarchies):
+    hs = constants.HIER_ORDER
+    for h in hs:
+        if h not in hierarchies:
+            hs.remove(h)
+    return hs

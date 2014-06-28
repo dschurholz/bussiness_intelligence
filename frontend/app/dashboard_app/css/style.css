@@ -1,0 +1,27 @@
+.dimention {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+.menu-row {
+	margin-left: 0px;
+}
+
+.chart-type {
+	width: 150px;
+}
+
+.loading-spinner {
+	width:14px;
+	height:14px;
+	float:left;
+	background:url("../img/spinner-mini.gif") center center no-repeat;
+	margin:0 5px
+}
+
+.loader {
+	width: 120px;
+	text-align: center;
+	margin-right: auto;
+	margin-left: auto;
+}

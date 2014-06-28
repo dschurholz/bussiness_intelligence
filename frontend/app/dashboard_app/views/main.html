@@ -1,25 +1,69 @@
-<div class="row-fluid">	
-	<div class="stats-date span3">
-		<div>Infracciones de velocidad</div>
-		<div class="range">2011 - 2013</div>
-	</div>
-</div>	
 
-<div class="row-fluid">
-	<div id="speedInf" class="span12" style="height:300px;overflow:hidden;"></div>
+<div ng-controller="MenuCtrl" class="panel panel-default">
+  <div class="panel-heading">
+  	Dimention Menu
+  </div>
+  <div class="panel-body">
+  	<div class="row menu-row">
+		<div class="col-md-2 panel panel-default dimention" ng-repeat="dimention in dimentions">
+		  <div class="panel-heading">
+		  	{{dimention.name}}
+		  </div>
+		  <div class="panel-body">
+		  	<div class="row hierarchy" ng-repeat="hierarchy in dimention.hierarchies">
+		  		<div class="col-md-1 checkbox-holder">
+					<input type="checkbox" ng-model="hierarchy.check" ng-click="checkHierarchy(hierarchy, dimention)">
+		  		</div>
+		  		<div class="col-md-3">
+		  		    {{hierarchy.name}}
+		  		</div>
+		  	</div>
+		  </div>
+		</div>
+	</div>
+	<hr />
+	<div class="row menu-row">
+	  <div class="col-md-2">
+	  	<select class="chart-type" ng-model="selectedType" ng-options="type.name for type in chartTypes"></select><br>
+	  </div>
+	  <div class="col-md-3">
+	    <input type="text" class="form-control" ng-model="newGraphicName" placeholder="Graphic name..."></input>
+	  </div>
+	  <div class="col-md-3">
+	    <button type="button" class="btn btn-primary" ng-click="createGraphic()">
+	      Create Graphic <i class="halflings-icon white plus"></i>
+	    </button>
+	  </div>
+	</div>
+  </div>
 </div>
 
 
-<hr />
 
-<div class="row-fluid">
-	
-	<div class="widget span12" ontablet="span12" ondesktop="span12">
-		<h2>Por Region</h2>
-		<hr />
-		<div class="content">
-			<div id="speedInfReg" ng-controller="RegionCtrl" style="height:900px;overflow:hidden;"></div>
+<div class="row-fluid">	
+	<div class="stats-date span3">
+		<h1>Graficos ({{graphicCount}})</h1>
+	</div>
+</div>	
+
+<div class="panel panel-default" ng-repeat="graphic in graphics">
+	<div class="panel-heading row-fluid" style="margin-top:0px;">
+		<div class="col-md-4">
+			<h2>{{graphic.name}}</h2>
 		</div>
-	</div><!--/span-->
-
+		<div class="col-md-4">
+			<ul class="pager">
+			  <li><a ng-show="graphic.previous" ng-click="previousPage(graphic)" style="cursor:pointer;">&laquo;</a></li>
+			  <li><a ng-show="graphic.next" ng-click="nextPage(graphic)" style="cursor:pointer;">&raquo;</a></li>
+			</ul>
+		</div>
+		<div class="col-md-4">
+			<a class="pull-right" ng-click="deleteGraphic(graphic)"><i class="halflings-icon black remove"></i></a>
+		</div>
+	</div>
+	<div class="panel-body">
+		<div class="loader" ng-show="!graphic.loaded">Loading data <i class="loading-spinner"></i></div>
+		<div id="speedInf-{{graphic.id}}" class="span12" style="height:300px;overflow:hidden;"></div>
+	</div>
+	<hr />
 </div>

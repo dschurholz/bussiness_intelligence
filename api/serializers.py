@@ -78,31 +78,56 @@ class CubeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cube
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'url')
 
 
 class DimentionSerializer(serializers.ModelSerializer):
     url = ReverseField('api:dimention-detail', args=('id',))
-    cube = ReverseField('api:cube-detail', args=('cube',))
+    cube = ReverseField('api:cube-detail', args=('cube.id',))
 
     class Meta:
         model = Dimention
-        fields = ('id', 'name', 'table_name')
+        fields = ('id', 'name', 'table_name', 'url', 'cube')
+
+
+class SimpleDimentionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Dimention
+        fields = ('name', 'table_name')
 
 
 class HierarchySerializer(serializers.ModelSerializer):
     url = ReverseField('api:hierarchy-detail', args=('id',))
-    dimention = ReverseField('api:dimention-detail', args=('dimention',))
+    dimention = ReverseField('api:dimention-detail', args=('dimention.id',))
 
     class Meta:
         model = Hierarchy
-        fields = ('id', 'name', 'columne_name')
+        fields = ('id', 'name', 'columne_name', 'url', 'dimention')
+
+
+class SimpleHierarchySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Hierarchy
+        fields = ('name', 'columne_name')
 
 
 class GraphicsSerializer(serializers.ModelSerializer):
     url = ReverseField('api:graphics-detail', args=('id',))
-    cube = ReverseField('api:cube-detail', args=('id_cube',))
+    cube = ReverseField('api:cube-detail', args=('id_cube.id',))
+    query_endpoint = ReverseField('api:graphics-query', args=('id',))
+    dimentions = serializers.SerializerMethodField('get_dimentions')
 
     class Meta:
         model = Graphics
-        fields = ('id', 'name', 'ds_type')
+        fields = ('id', 'name', 'ds_type', 'url', 'cube', 'query',
+                  'query_endpoint', 'dimentions')
+
+    def get_dimentions(self, obj):
+        return obj.get_dimentions()
+
+
+class SQLQuerySerializer(serializers.Serializer):
+    label = serializers.CharField(max_length=100, min_length=None)
+    count = serializers.IntegerField()

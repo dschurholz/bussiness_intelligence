@@ -74,19 +74,6 @@ class Region(models.Model):
         return "%s-%s-%s" % (self.city, self.province, self.district)
 
 
-class SpeedInfringement(models.Model):
-    id = models.IntegerField(primary_key=True)
-    unit = models.ForeignKey(DimCustomerUnit, db_column='UNI_CODIGODW')
-    date = models.DateField(db_column='MEC_FECCOMUNDW', null=True)
-    speed = models.SmallIntegerField(db_column='MEC_VELOCIDAD', null=True)
-    reference = models.ForeignKey(DimReference, db_column='idReferencia')
-    codemensa = models.IntegerField(db_column='MEC_CODMENSA', null=True)
-
-    class Meta:
-        db_table = 'factexcesovelocidad'
-        ordering = ['id']
-
-
 class Time(models.Model):
     id_date = models.IntegerField(primary_key=True)
     year = models.CharField(max_length=50, db_column='Anho')
@@ -102,6 +89,20 @@ class Time(models.Model):
         return "%s-%s-%s" % (self.year, self.month, self.day)
 
 
+class SpeedInfringement(models.Model):
+    id = models.IntegerField(primary_key=True)
+    unit = models.ForeignKey(DimCustomerUnit, db_column='UNI_CODIGODW')
+    date = models.DateField(db_column='MEC_FECCOMUNDW', null=True)
+    speed = models.SmallIntegerField(db_column='MEC_VELOCIDAD', null=True)
+    reference = models.ForeignKey(DimReference, db_column='idReferencia')
+    codemensa = models.IntegerField(db_column='MEC_CODMENSA', null=True)
+    ref_date = models.ForeignKey(Time, null=True)
+
+    class Meta:
+        db_table = 'factexcesovelocidad'
+        ordering = ['id']
+
+
 class Event(models.Model):
     time = models.ForeignKey(Time, db_column='id_tiempo', null=True)
     region = models.ForeignKey(Region, db_column='id_region', null=True)
@@ -114,34 +115,97 @@ class Event(models.Model):
 
 
 class Cube(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
 
     class Meta:
         ordering = ['name']
 
+    def __unicode__(self):
+        return "%s" % (self.name,)
+
+    @staticmethod
+    def create_new_cube(name):
+        cube = Cube(name=name)
+        cube.save()
+        return cube
+
 
 class Dimention(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     table_name = models.CharField(max_length=100)
     cube = models.ForeignKey(Cube)
 
     class Meta:
         ordering = ['name']
 
+    def __unicode__(self):
+        return "%s (Cube %s)" % (self.name, self.cube,)
+
+    @staticmethod
+    def create_new_dimention(name, table_name, cube):
+        dimention = Dimention(
+            name=name,
+            table_name=table_name,
+            cube=cube
+        )
+        dimention.save()
+        return dimention
+
 
 class Hierarchy(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     columne_name = models.CharField(max_length=100)
     dimention = models.ForeignKey(Dimention)
 
     class Meta:
         ordering = ['name']
 
+    def __unicode__(self):
+        return "%s (Dimention %s)" % (self.name, self.dimention,)
+
+    @staticmethod
+    def create_new_hierarchy(name, columne_name, dimention):
+        hierarchy = Hierarchy(
+            name=name,
+            columne_name=columne_name,
+            dimention=dimention
+        )
+        hierarchy.save()
+        return hierarchy
+
 
 class Graphics(models.Model):
     name = models.CharField(max_length=50, unique=True)
     ds_type = models.CharField(max_length=50)
     id_cube = models.ForeignKey(Cube, null=True)
+    query = models.TextField(null=True, blank=True)
 
     class Meta:
         ordering = ['name', 'ds_type', 'id_cube']
+
+    def get_dimentions(self):
+        dims = []
+        dimentions = Dimention.objects.filter(cube=self.id_cube)
+        for dim in dimentions:
+            tmp = {"name": dim.name,
+                   "table_name": dim.table_name,
+                   "hierarchies": []}
+            hierarchies = Hierarchy.objects.filter(dimention=dim)
+            for hier in hierarchies:
+                tmp["hierarchies"].append({
+                    "name": hier.name,
+                    "columne_name": hier.columne_name
+                })
+            dims.append(tmp)
+        return dims
+
+    @staticmethod
+    def create_new_graphic(name, ds_type, cube, query):
+        graphic = Graphics(
+            name=name,
+            ds_type=ds_type,
+            id_cube=cube,
+            query=query
+        )
+        graphic.save()
+        return graphic

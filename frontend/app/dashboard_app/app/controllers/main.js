@@ -1,8 +1,151 @@
 'use strict';
 
 /* Controllers */
-function MainCtrl($scope, SpeedInfringementsYear, SpeedInfringementsMonth, SpeedInfringementsDay) {
-    var builderOfSerie = function(name, data) {
+function MainCtrl($scope, $http, $cookies, $compile, GraphicList, utilsService) {
+    App.scope = $scope;
+    $scope.graphics = [];
+    $scope.graphicCount = 0;
+    GraphicList.get({}, function (data) {
+        $scope.graphics = data.results;
+        $scope.graphicCount = data.count;
+        $scope.buildGraphics();
+    });
+
+    $scope.buildGraphics = function () {
+        for (var graphic in $scope.graphics) {
+            $scope.graphics[graphic].loaded = false;
+            var endpoint = $scope.graphics[graphic].query_endpoint + "?query=" +
+                           $scope.graphics[graphic].query;
+            $http.get(endpoint).success(function (data) {
+                //console.log(data);
+                var idx = utilsService.searchByProperty(
+                    $scope.graphics,
+                    'id',
+                    data.graphic_id
+                );
+                $scope.graphics[idx].next = data.next;
+                $scope.graphics[idx].previous = data.previous;
+                $scope.graphics[idx].loaded = true;
+                var serie = builderOfSerie($scope.graphics[idx].name, data.results);
+                $('#speedInf-'+$scope.graphics[idx].id).highcharts({
+                    chart: {
+                        type: $scope.graphics[idx].ds_type,
+                    },
+                    title: { text: $scope.graphics[idx].name },
+                    xAxis: { type: 'category' },
+                    legend: { enabled: false },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            dataLabels: {
+                                enabled: true,
+                            }
+                        }
+                    },
+                    series: [serie],
+                    drilldown: { series : [] },
+                    tooltip: {
+                        useHTML: true,
+                        formatter: function() {
+                            var text = '<span style="font-size: 12px">Infracciones: ' + this.y + '</span><br/>';
+                            for (var dim in $scope.graphics[idx].dimentions) {
+                                text += '<b style="font-size: 14px">' +
+                                        $scope.graphics[idx].dimentions[dim].name +'</b><br/>';
+                                for (var hier in $scope.graphics[idx].dimentions[dim].hierarchies) {
+                                    var h = utilsService.format('App.scope.graphics[{0}].dimentions[{1}].hierarchies[{2}]',
+                                                                  {0:idx, 1:dim, 2:hier}),
+                                    n = this.point.name;
+                                    text += '&nbsp&nbsp<a style="cursor: pointer;" ' +
+                                            'onClick="javascript:App.scope.drilldown(' + h + ',\'' + n + '\', \'' + idx + '\')">' +
+                                             $scope.graphics[idx].dimentions[dim].hierarchies[hier].name +'</a><br/>';
+                                }
+                            }
+                            return text;
+                        }
+                    },
+                });
+            });
+        }
+        charts();
+    };
+
+    $scope.nextPage = function (graphic) {
+        graphic.loaded = false;
+        $http.get(graphic.next).success(function (data) {
+            console.log(data);
+            var idx = utilsService.searchByProperty(
+                $scope.graphics,
+                'id',
+                data.graphic_id
+            );
+            $scope.graphics[idx].loaded = true;
+            $scope.graphics[idx].next = data.next;
+            $scope.graphics[idx].previous = data.previous;
+            var serie = builderOfSerie($scope.graphics[idx].name, data.results);
+            $('#speedInf-'+$scope.graphics[idx].id).highcharts({
+                    chart: {
+                        type: $scope.graphics[idx].ds_type,
+                    },
+                    title: { text: $scope.graphics[idx].name },
+                    xAxis: { type: 'category' },
+                    legend: { enabled: false },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            dataLabels: {
+                                enabled: true,
+                            }
+                        }
+                    },
+                    series: [serie],
+                    drilldown: { series : [] },
+                    tooltip: {
+                        useHTML: true,
+                        formatter: function() {
+                            var text = '<span style="font-size: 12px">Infracciones: ' + this.y + '</span><br/>';
+                            for (var dim in $scope.graphics[idx].dimentions) {
+                                text += '<b style="font-size: 14px">' +
+                                        $scope.graphics[idx].dimentions[dim].name +'</b><br/>';
+                                for (var hier in $scope.graphics[idx].dimentions[dim].hierarchies) {
+                                    var h = utilsService.format('App.scope.graphics[{0}].dimentions[{1}].hierarchies[{2}]',
+                                                                  {0:idx, 1:dim, 2:hier}),
+                                    n = this.point.name;
+                                    text += '&nbsp&nbsp<a style="cursor: pointer;" ' +
+                                            'onClick="javascript:App.scope.drilldown(' + h + ',\'' + n + '\', \'' + idx + '\')">' +
+                                             $scope.graphics[idx].dimentions[dim].hierarchies[hier].name +'</a><br/>';
+                                }
+                            }
+                            return text;
+                        }
+                    },
+                });
+        });
+    };
+
+    $scope.deleteGraphic = function (graphic) {
+        var idx = utilsService.searchByProperty(
+            $scope.graphics,
+            'id',
+            graphic.id
+        );
+        $scope.graphics.splice(idx, 1);
+        $scope.graphicCount--;
+        $http({
+            method: 'DELETE',
+            url: graphic.url,
+            headers: {
+                'X-CSRFToken': $cookies.csrftoken
+            }
+        });
+    };
+
+    $scope.drilldown = function (hierarchy, pointName, graphicId) {
+        console.log(hierarchy);
+        console.log(pointName);
+        console.log(graphicId);
+    };
+
+    var builderOfSerie = function (name, data) {
         var serie = { name : name,
                       colorByPoint : true,
                       data : [] };
@@ -10,61 +153,15 @@ function MainCtrl($scope, SpeedInfringementsYear, SpeedInfringementsMonth, Speed
             serie.data.push({ name : data[i].label, y : data[i].count, z : data[i].count, drilldown : true });
         }
         return serie;
-    }
+    };
 
-    
-    var speedInfsYear = SpeedInfringementsYear.get({}, function() {
-        var serie = builderOfSerie("Year", speedInfsYear.data);
-        $('#speedInf').highcharts({
-            chart: {
-                type: 'column',
-                events: {
-                    drilldown: function (e) {
-                        var lchar = $("#speedInf").highcharts();
-                        if (e.point.series.name == 'Year') {
-                            console.log('Process drilldown year...', e.point.name);
-                            var speedInfsMonth = SpeedInfringementsMonth.get({ year : e.point.name }, function() {
-                                lchar.addSeriesAsDrilldown(e.point, builderOfSerie("Month", speedInfsMonth.data));
-                            });
-                            return;
-                        }
-                        if (e.point.series.name == 'Month') {
-                            console.log('Process drilldown month...', e.point.name);
-                            var cYear = e.currentTarget.drilldownLevels[0].pointOptions.name;
-                            var speedInfsDay = SpeedInfringementsDay.get({ year: cYear , month : e.point.name }, function() {
-                                lchar.addSeriesAsDrilldown(e.point, builderOfSerie("Day", speedInfsDay.data));
-                            });
-                            return;
-                        }
-                        if (e.point.series.name == 'Day') {
-                            var cYear = e.currentTarget.drilldownLevels[0].pointOptions.name;
-                            var cMonth = e.currentTarget.drilldownLevels[1].pointOptions.name;
-                            console.log('Process drilldown day...', cYear, cMonth, e.point.name);
-                            return;
-                        }
-                    }
-                }
-            },
-            title: { text: 'Infracciones de velocidad por tiempo' },
-            xAxis: { type: 'category' },
-            legend: { enabled: false },
-            plotOptions: {
-                series: {
-                    borderWidth: 0,
-                    dataLabels: {
-                        enabled: true,
-                    }
-                }
-            },
-            series: [serie],
-            drilldown: { series : [] },
-        });
-
+    $scope.$on('graphic_created', function (e, data) {
+        console.log(e);
+        console.log(data);
+        $scope.graphics.push(data.data);
+        $scope.graphicCount++;
+        $scope.buildGraphics();
     });
-
-    // Build chars example cubo 1 cubo 2
-    charts();
-
 }
 
 function RegionCtrl($scope, SpeedInfringementsRegion, SpeedInfringementsProvince, SpeedInfringementsDistrict, SpeedInfringementsRoad) {
